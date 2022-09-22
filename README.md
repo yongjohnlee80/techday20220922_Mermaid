@@ -23,14 +23,25 @@
 ```mermaid
 sequenceDiagram
     autonumber
-    Alice->>John: Hello John, how are you?
-    loop Healthcheck
-        John->>John: Fight against hypochondria
+    loop Smoke Testing
+        LM-UI->>Cypress Testing: begins smoke testings
+        Cypress Testing->>Cypress Testing: execute test cases while simulating user interactions
+        Cypress Testing-->>LM-UI: PASS!
+        Note right of Cypress Testing: Run negative tests too!
     end
-    Note right of John: Rational thoughts!
-    John-->>Alice: Great!
-    John->>Bob: How about you?
-    Bob-->>John: Jolly good!
+
+        LM-UI->>LM-Backend: Establish connection
+
+    loop Regression Testing
+        LM-UI ->> Cypress Testing: begin regression testings
+        Cypress Testing ->> Cypress Testing: execute test cases via intercepting requests.
+
+        Cypress Testing->>LM-Backend: send requests
+        LM-Backend-->>Cypress Testing: receive response
+        Cypress Testing ->> Cypress Testing: verify responses with requests
+        Cypress Testing->>LM-UI: PASS!
+    end
+
 ```
 
 ```mermaid
