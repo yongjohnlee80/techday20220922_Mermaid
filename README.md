@@ -25,7 +25,7 @@ sequenceDiagram
     autonumber
     loop Smoke Testing
         LM-UI->>Cypress Testing: begins smoke testings
-        Cypress Testing->>Cypress Testing: execute test cases while simulating user interactions
+        Cypress Testing-->>Cypress Testing: execute test cases while simulating user interactions
         Cypress Testing-->>LM-UI: PASS!
         Note right of Cypress Testing: Run negative tests too!
     end
@@ -34,12 +34,12 @@ sequenceDiagram
 
     loop Regression Testing
         LM-UI ->> Cypress Testing: begin regression testings
-        Cypress Testing ->> Cypress Testing: execute test cases via intercepting requests.
+        Cypress Testing -->> Cypress Testing: execute test cases via intercepting requests.
 
         Cypress Testing->>LM-Backend: send requests
         LM-Backend-->>Cypress Testing: receive response
-        Cypress Testing ->> Cypress Testing: verify responses with requests
-        Cypress Testing->>LM-UI: PASS!
+        Cypress Testing -->> Cypress Testing: verify responses with requests
+        Cypress Testing-->>LM-UI: PASS!
     end
 
 ```
