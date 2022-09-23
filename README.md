@@ -25,7 +25,7 @@
 sequenceDiagram
     autonumber
     participant A as LM-UI
-    participant B as Cypress Testing
+    actor B as Cypress Testing
     participant C as LM-Backend
 
     Note over A, C: Label Manager Build Begins
@@ -35,9 +35,13 @@ sequenceDiagram
         Note over A,B: Simulate User actions
         A-->>B: LM_UI responds to each case
         Note over B: Verify each Response
-        B->>C: send request if necessary
-        C-->>A: send response
-        B->>A: verify HTML layout
+        par interactions with server if needed
+            B->>C: send request
+            C-->>A: send response
+            Note over B: Verify server response
+            B->>A: verify UI elements
+        end
+
         B->>B: log result
         Note right of B: Test Terminates on critical error
     end
@@ -63,11 +67,8 @@ sequenceDiagram
 ### Testcase Example: login.spec.js
 ```
 describe("Login page tests", () => {
-
-    beforeEach(() => {
-    	cy.visit(lmRoutes.home)
-    })
-
+    ...
+    // Positive Test
     it("User can login with a correct credential", () => {
     	onLoginPage.enterEmail(userLogin.email)
     	onLoginPage.enterPassword(userLogin.password)
@@ -76,11 +77,13 @@ describe("Login page tests", () => {
 
     // Negative Test & Edge Cases
     it("User cannot login with an incorrect credential", () => {
-		onLoginPage.enterEmail("userLogin@email.com")
-		onLoginPage.enterPassword("userLogin.password")
-		onLoginPage.clickLoginButton(expectError)
-		verify.alertMessageDisplayed()
+        onLoginPage.enterEmail("userLogin@email.com")
+        onLoginPage.enterPassword("userLogin.password")
+        onLoginPage.clickLoginButton(expectError)
+        verify.alertMessageDisplayed()
     })
+    ...
+}
 ```
 
 ### Page Object Model Example: login.page.ts
@@ -99,7 +102,7 @@ class LoginPage {
 	}
 
 	enterPassword(password: string): void {
-        ...
+            ...
 	}
 
 	clickLoginButton(verifyOption: number = 0): void {
