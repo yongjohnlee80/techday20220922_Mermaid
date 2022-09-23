@@ -53,7 +53,7 @@ sequenceDiagram
         Note over B,C: Make HTTP requests
         C-->>A: Response back to LM-UI
         Note over B: Intercepts response if necessary
-        B->>A: verify HTML layout
+        B->>A: verify UI elements
         B->>B: log result
         Note right of B: Test terminates on critical error
     end
@@ -70,6 +70,7 @@ describe("Login page tests", () => {
     ...
     // Positive Test
     it("User can login with a correct credential", () => {
+
     	onLoginPage.enterEmail(userLogin.email)
     	onLoginPage.enterPassword(userLogin.password)
     	onLoginPage.clickLoginButton(verifyResponse)
@@ -77,9 +78,11 @@ describe("Login page tests", () => {
 
     // Negative Test & Edge Cases
     it("User cannot login with an incorrect credential", () => {
-        onLoginPage.enterEmail("userLogin@email.com")
-        onLoginPage.enterPassword("userLogin.password")
+
+        onLoginPage.enterEmail("NO-NAME@FAKE.COM")
+        onLoginPage.enterPassword("FAKE-PASSWORD")
         onLoginPage.clickLoginButton(expectError)
+
         verify.alertMessageDisplayed()
     })
     ...
@@ -96,9 +99,9 @@ const selector = {
 
 class LoginPage {
 	enterEmail(email: string): void {
-		email === ""
-			? cy.get(selector.emailField).clear()
-			: cy.get(selector.emailField).type(email)
+	    email === ""
+	    	? cy.get(selector.emailField).clear()
+	    	: cy.get(selector.emailField).type(email)
 	}
 
 	enterPassword(password: string): void {
@@ -106,25 +109,20 @@ class LoginPage {
 	}
 
 	clickLoginButton(verifyOption: number = 0): void {
-		if (verifyOption > 0) {
-			cy.intercept(
-				"POST",
-				Cypress.env("API_HOST") + lmRoutes.signIn,
-				(req) => {
-					req.body = { ...req.body, failOnStatusCode: false }
-					req.continue((res) => {
-						expect(res.body.status).to.eq(200)
-
-						if (verifyOption === verifyResponse) {
-							expect(res.body.status).to.eq(200)
-						} else {
-							expect(res.body.status).not.eq(200)
-						}
-					})
-				}
-			)
-		}
-		cy.get(selector.loginButton).click()
+	    if (verifyOption > 0) {
+	    	cy.intercept(
+	    		"POST",
+	    		Cypress.env("API_HOST") + lmRoutes.signIn, (req) => {
+			    req.body = { ...req.body, failOnStatusCode: false }
+			    req.continue((res) => {
+                    if (verifyOption === verifyResponse) {
+                        expect(res.body.status).to.eq(200)
+                    } else {
+                        expect(res.body.status).not.eq(200)
+                    }
+                })
+            })}
+            cy.get(selector.loginButton).click()
 	}
 }
 ```
