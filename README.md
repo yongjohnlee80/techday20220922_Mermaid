@@ -60,6 +60,73 @@ sequenceDiagram
 
 ## * Page Object Model Pattern Example
 
+### Testcase Example: login.spec.js
+```
+describe("Login page tests", () => {
+
+    beforeEach(() => {
+    	cy.visit(lmRoutes.home)
+    })
+
+    it("User can login with a correct credential", () => {
+    	onLoginPage.enterEmail(userLogin.email)
+    	onLoginPage.enterPassword(userLogin.password)
+    	onLoginPage.clickLoginButton(verifyResponse)
+    })
+
+    // Negative Test & Edge Cases
+    it("User cannot login with an incorrect credential", () => {
+		onLoginPage.enterEmail("userLogin@email.com")
+		onLoginPage.enterPassword("userLogin.password")
+		onLoginPage.clickLoginButton(expectError)
+		verify.alertMessageDisplayed()
+    })
+```
+
+### Page Object Model Example: login.page.ts
+```
+const selector = {
+    emailField: '[placeholder="Email"]',
+    passwordField: '[placeholder="Password"]',
+    loginButton: '[data-test="feedback-button-save"]',
+}
+
+class LoginPage {
+	enterEmail(email: string): void {
+		email === ""
+			? cy.get(selector.emailField).clear()
+			: cy.get(selector.emailField).type(email)
+	}
+
+	enterPassword(password: string): void {
+        ...
+	}
+
+	clickLoginButton(verifyOption: number = 0): void {
+		if (verifyOption > 0) {
+			cy.intercept(
+				"POST",
+				Cypress.env("API_HOST") + lmRoutes.signIn,
+				(req) => {
+					req.body = { ...req.body, failOnStatusCode: false }
+					req.continue((res) => {
+						expect(res.body.status).to.eq(200)
+
+						if (verifyOption === verifyResponse) {
+							expect(res.body.status).to.eq(200)
+						} else {
+							expect(res.body.status).not.eq(200)
+						}
+					})
+				}
+			)
+		}
+		cy.get(selector.loginButton).click()
+	}
+}
+```
+
+### Overview of above code structure using class diagram
 
 ```mermaid
 classDiagram
@@ -85,7 +152,7 @@ classDiagram
     }
 ```
 
-## * Testing Flow Chart
+## * Overall Build & Testing Flow Chart
 
 
 ```mermaid
