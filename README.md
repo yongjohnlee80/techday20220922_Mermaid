@@ -3,139 +3,103 @@
 
 ## 1. Purpose
 
-##### Exploring markdown compatible diagram rendering tools that meets certain requirements.
+#### Exploring markdown compatible diagram rendering tools that meets certain requirements.
 
 ## 2. Requirements
 
-##### a. Must be able to implement in '.md' file.
-##### b. Must be able to render various UML diagrams related to software testing and documentations.
-##### c. Nice to have Github integration.
-##### d. Nice to have low overhead.
+#### a. Must be able to implement in '.md' file.
+#### b. Must be able to render various UML diagrams related to software testing and documentations.
+#### c. Nice to have Github integration.
+#### d. Nice to have low overhead.
 
 ## 3. Mermaid
 
-##### There are two available diagram-rendering engines available for markdown documents, namely the PlantUML and Mermaid engines. However, PlantUML requires heavier resources (its own Java based rendering engine), and is not supported in the GitHub repository file viewers. Mermaid, on the other hand, is based on Javascript and requires less resources to work with, and have Github integration by default.
+#### There are two available diagram-rendering engines available for markdown documents, namely the PlantUML and Mermaid engines. However, PlantUML requires heavier resources (its own Java based rendering engine), and is not supported in the GitHub repository file viewers. Mermaid, on the other hand, is based on Javascript and requires less resources to work with, and have Github integration by default.
 
 ## 4. Use-cases for Testing
 
-##### Mermaid's requirement diagram display software or testing requirements easily and satisfying elements in easy to understandable syntax.
+#### * Login Page Test Sequences
+
 
 ```mermaid
 sequenceDiagram
     autonumber
-    loop Smoke Testing
-        LM-UI->>Cypress Testing: begins smoke testings
-        Cypress Testing-->>Cypress Testing: execute test cases while simulating user interactions
-        Cypress Testing-->>LM-UI: PASS!
-        Note right of Cypress Testing: Run negative tests too!
+    participant A as LM-UI
+    participant B as Cypress Testing
+    participant C as LM-Backend
+
+    Note over A, C: Label Manager Build Begins
+
+    loop Initiates Smoke Testing
+        B->>A: executes each test case
+        Note over A,B: Simulate User actions
+        A-->>B: LM_UI responds to each case
+        Note over B: Verify each Response
+        B->>C: send request if necessary
+        C-->>A: send response
+        B->>A: verify HTML layout
+        B->>B: log result
+        Note right of B: Test Terminates on critical error
     end
 
-        LM-UI->>LM-Backend: Establish connection
+        Note over A, C: Regression and Integration Begins
 
-    loop Regression Testing
-        LM-UI ->> Cypress Testing: begin regression testings
-        Cypress Testing -->> Cypress Testing: execute test cases via intercepting requests.
-
-        Cypress Testing->>LM-Backend: send requests
-        LM-Backend-->>Cypress Testing: receive response
-        Cypress Testing -->> Cypress Testing: verify responses with requests
-        Cypress Testing-->>LM-UI: PASS!
+    loop Initiates Regression Testing
+        B->>C: executes each test case
+        Note over B,C: Make HTTP requests
+        C-->>A: Response back to LM-UI
+        Note over B: Intercepts response if necessary
+        B->>A: verify HTML layout
+        B->>B: log result
+        Note right of B: Test terminates on critical error
     end
+
+    Note over A, C: Deploy Label Manager
 
 ```
+
+#### * Page Object Model Pattern Example
+
 
 ```mermaid
 classDiagram
-    Animal <|-- Duck
-    Animal <|-- Fish
-    Animal <|-- Zebra
-    Animal : +int age
-    Animal : +String gender
-    Animal: +isMammal()
-    Animal: +mate()
-    class Duck{
-        +String beakColor
-        +swim()
-        +quack()
+    LoginTestcases *-- LoginPage
+    LoginTestcases *-- Verify
+    LoginTestcases: verify login with
+    LoginTestcases : +(correct credential)
+    LoginTestcases : -(invalid input fields)
+    LoginTestcases : -(invalid credentials)
+
+    <<Service>> LoginPage
+    class LoginPage{
+        encapsulate user actions
+        type(email/password)
+        click(login-button)
     }
-    class Fish{
-        -int sizeInFeet
-        -canEat()
-    }
-    class Zebra{
-        +bool is_wild
-        +run()
+
+    <<Service>> Verify
+    class Verify{
+        verify results
+        verifyHttpResponse()
+        verifyErrorMessage()
     }
 ```
 
+#### * Testing Flow Chart
+
 
 ```mermaid
-requirementDiagram
+flowchart TD
+    O[Start Build Process]-->Q[Initiate QA Process]
+    Q -->A
+    A[Execute a test case] --> B{Did it pass?}
+    B -->|Yes| C{are there more cases?}
+    B -->|No| D[Log error]
+    C -->|Yes| A
+    C -->|No| E[Deploy Application]
+    D -->F{Is it critical?}
+    F -->|No| A
+    F -->|Yes|G[Terminate Build Process]
 
-    requirement test_req {
-    id: 1
-    text: the test text.
-    risk: high
-    verifymethod: test
-    }
-
-    functionalRequirement test_req2 {
-    id: 1.1
-    text: the second test text.
-    risk: low
-    verifymethod: inspection
-    }
-
-    performanceRequirement test_req3 {
-    id: 1.2
-    text: the third test text.
-    risk: medium
-    verifymethod: demonstration
-    }
-
-    interfaceRequirement test_req4 {
-    id: 1.2.1
-    text: the fourth test text.
-    risk: medium
-    verifymethod: analysis
-    }
-
-    physicalRequirement test_req5 {
-    id: 1.2.2
-    text: the fifth test text.
-    risk: medium
-    verifymethod: analysis
-    }
-
-    designConstraint test_req6 {
-    id: 1.2.3
-    text: the sixth test text.
-    risk: medium
-    verifymethod: analysis
-    }
-
-    element test_entity {
-    type: simulation
-    }
-
-    element test_entity2 {
-    type: word doc
-    docRef: reqs/test_entity
-    }
-
-    element test_entity3 {
-    type: "test suite"
-    docRef: github.com/all_the_tests
-    }
-
-
-    test_entity - satisfies -> test_req2
-    test_req - traces -> test_req2
-    test_req - contains -> test_req3
-    test_req3 - contains -> test_req4
-    test_req4 - derives -> test_req5
-    test_req5 - refines -> test_req6
-    test_entity3 - verifies -> test_req5
-    test_req <- copies - test_entity2
 ```
 
