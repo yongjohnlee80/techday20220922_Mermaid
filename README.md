@@ -18,7 +18,7 @@
 
 ## 4. Use-cases for Testing
 
-#### * Login Page Test Sequences
+## * Login Page Test Sequences
 
 
 ```mermaid
@@ -58,7 +58,7 @@ sequenceDiagram
 
 ```
 
-#### * Page Object Model Pattern Example
+## * Page Object Model Pattern Example
 
 
 ```mermaid
@@ -85,7 +85,7 @@ classDiagram
     }
 ```
 
-#### * Testing Flow Chart
+## * Testing Flow Chart
 
 
 ```mermaid
